@@ -28,6 +28,7 @@ library OracleLib {
 
         uint256 secondSince = block.timestamp - updatedAt;
         if (secondSince > TIMEOUT) revert OracleLib__StalePrice();
+        if (answeredInRound < roundId) revert OracleLib__StalePrice();
 
         return (roundId, answer, startedAt, updatedAt, answeredInRound);
     }

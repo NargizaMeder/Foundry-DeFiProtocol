@@ -33,11 +33,17 @@ contract OracleLibTest is StdCheats, Test {
     }
 
     function testPriceRevertsOnBadAnsweredInRound() public {
-        uint80 _roundId = 0;
-        int256 _answer = 0;
-        uint256 _timestamp = 0;
-        uint256 _startedAt = 0;
-        aggregator.updateRoundData(_roundId, _answer, _timestamp, _startedAt);
+        uint80 roundId = 2;
+        int256 answer = 2000e8;
+        uint256 startedAt = block.timestamp;
+        uint256 updatedAt = block.timestamp;
+        uint80 answeredInRound = 1; // bad: answeredInRound < roundId
+
+        vm.mockCall(
+            address(aggregator),
+            abi.encodeWithSelector(AggregatorV3Interface.latestRoundData.selector),
+            abi.encode(roundId, answer, startedAt, updatedAt, answeredInRound)
+        );
 
         vm.expectRevert(OracleLib.OracleLib__StalePrice.selector);
         AggregatorV3Interface(address(aggregator)).staleCheckLatestRoundData();
